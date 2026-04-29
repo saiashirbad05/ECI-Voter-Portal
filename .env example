@@ -1,0 +1,16 @@
+# --- SHARED CONFIGURATION ---
+GEMINI_API_KEY=api key 
+SUPABASE_URL=db url 
+GCP_PROJECT_ID=promptwars-virtual-494011
+
+# --- FRONTEND CONFIGURATION (Vite) ---
+VITE_SUPABASE_URL=db url 
+VITE_SUPABASE_ANON_KEY=anon key db 
+VITE_GEMINI_API_KEY=gemini api key 
+
+# --- BACKEND CONFIGURATION ---
+PORT=5000
+SUPABASE_SERVICE_ROLE_KEY=database secret
+DATABASE_URL=postgresql://postgres:[password]@db.[databaseid].supabase.co:6543/postgres?sslmode=require&pgbouncer=true
+
+AI_SERVICE_URL=http://localhost:8000

@@ -1,0 +1,771 @@
+================================================================================
+  PRODUCT REQUIREMENTS DOCUMENT (PRD)
+  ECI Election Portal — Full-Stack Web Application
+  Version: 1.0  |  Date: April 28, 2026  |  Status: READY FOR DEVELOPMENT
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. PRODUCT OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Product Name    : ECI Voter Portal (Bharat Nirwachan Portal)
+Tagline         : Your Vote. Your Democracy. Powered by Intelligence.
+Owner           : Election Commission of India (ECI)
+Primary Users   : Indian citizens (voters), journalists, researchers, candidates
+Design System   : IBM Carbon Design System (modified — ECI tricolor branding)
+Core Purpose    : Provide a single authoritative platform for voter registration,
+                  election education, AI-assisted civic Q&A, real-time election
+                  data, candidate discovery, grievance filing, and constituency
+                  exploration for India's 970M+ eligible voters.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. TECH STACK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────┬──────────────────────────────────────────────────────┐
+│ Layer               │ Technology                                           │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ Frontend Framework  │ React 18 + TypeScript                                │
+│ Styling             │ CSS Modules + IBM Carbon Design Tokens               │
+│ Build Tool          │ Vite 5 (TypeScript config)                           │
+│ State Management    │ Zustand (lightweight global store)                   │
+│ Routing             │ React Router v6                                      │
+│ API Client          │ Axios + React Query (TanStack Query v5)              │
+│ Maps                │ Leaflet.js + React-Leaflet (constituency maps)       │
+│ Charts              │ Recharts (turnout predictions, data viz)             │
+│ Forms               │ React Hook Form + Zod validation                     │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ Backend Runtime     │ Node.js 20 LTS                                       │
+│ Backend Framework   │ Express.js (TypeScript via ts-node / tsx)            │
+│ AI/ML Service       │ Python 3.12 FastAPI microservice                     │
+│ API Gateway         │ Express routes proxy to FastAPI for AI endpoints     │
+│ Real-time           │ Socket.IO (live turnout, election news feed)         │
+│ Background Jobs     │ BullMQ + Redis (news scraping, predictions)          │
+│ Caching             │ Redis (API response cache, session cache)            │
+│ File Storage        │ Supabase Storage (candidate photos, documents)       │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ Database            │ Supabase (PostgreSQL 15)                             │
+│ ORM                 │ Prisma (TypeScript schemas, migrations)              │
+│ Full-text Search    │ Supabase pg_trgm + tsvector (electoral roll search)  │
+│ Realtime DB         │ Supabase Realtime (live turnout numbers)             │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ Authentication      │ Supabase Auth + Google OAuth 2.0                     │
+│ Auth Strategy       │ JWT (short-lived) + refresh tokens in httpOnly cookie│
+│ Role-Based Access   │ voter | journalist | admin | candidate               │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ AI APIs             │ Google Gemini 1.5 Flash (chatbot, Q&A)              │
+│                     │ Gemini 1.5 Pro (predictions, deep analysis)          │
+│ Embeddings          │ Gemini text-embedding-004 (semantic search)          │
+│ Vector Store        │ Supabase pgvector (RAG over election law documents)  │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ DevOps              │ Docker + Docker Compose (local dev)                  │
+│ CI/CD               │ GitHub Actions → Vercel (frontend) + Railway (Node) │
+│ Python Deploy       │ Railway (FastAPI container)                          │
+│ Monitoring          │ Sentry (errors) + Posthog (analytics)               │
+│ Env Management      │ dotenv + Vault (secrets)                             │
+└─────────────────────┴──────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. DESIGN SYSTEM & UI SPECIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Base Design System : IBM Carbon Design System
+Customization      : ECI Tricolor Brand Layer applied on top
+
+3.1 COLOR TOKENS
+  --cds-background        : #ffffff
+  --cds-layer-01          : #f4f4f4
+  --cds-layer-02          : #e0e0e0
+  --cds-background-dark   : #161616
+  --cds-button-primary    : #0f62fe   (IBM Blue 60)
+  --eci-saffron           : #D97706   (Indian Flag Saffron accent)
+  --eci-saffron-light     : #FEF3C7
+  --eci-green             : #047857   (Indian Flag Green)
+  --eci-navy              : #0B3D91
+
+3.2 TYPOGRAPHY
+  Primary Font     : IBM Plex Sans (300, 400, 600)
+  Monospace Font   : IBM Plex Mono (400) — stats, codes, tables
+  Display Hero     : 60px / weight 300 / letter-spacing 0
+  Section Titles   : 32px / weight 400
+  Card Titles      : 20px / weight 600
+  Body             : 16px / weight 400 / line-height 1.5
+  Labels/Captions  : 12px / weight 400 / letter-spacing 0.32px
+
+3.3 LAYOUT RULES
+  Max Content Width   : 1312px centered with 32px gutters
+  Grid System         : 16-column CSS Grid (Carbon 2x Grid)
+  Border Radius       : 0px everywhere (Carbon identity — no rounded corners)
+  Shadows             : None — depth via background layering only
+  Button Height       : 48px (primary), 40px (secondary)
+  Input Height        : 40px, bottom-border only (no box border)
+
+3.4 COMPONENT PATTERNS
+  Navigation    : 48px dark (#161616) sticky header, tricolor 4px top bar
+  Tiles         : Flat cards on layer-01 bg, 1px gap-grid layout
+  Tables        : Carbon data table — 2px bottom border on header
+  Forms         : Bottom-border inputs on dark (#161616) background sections
+  Tabs          : Bottom-border active indicator in IBM Blue
+  Badges/Pills  : 24px border-radius colored status pills
+  Notifications : Left-border inline notification (4px colored left border)
+
+3.5 RESPONSIVE BREAKPOINTS
+  Desktop    : 1312px+  (full 4-column quick actions, 3-column tiles)
+  Tablet     : 672–1056px (2-column tiles, 3-column timeline)
+  Mobile     : < 672px  (single column, hidden nav links, no hero card)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. PAGE ARCHITECTURE & ROUTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Route                     Component                  Auth Required
+─────────────────────────────────────────────────────────────────
+/                         HomePage                   No
+/register                 VoterRegistration          Google OAuth
+/verify                   VerifyRegistration         No
+/candidates               CandidateDirectory         No
+/candidates/:id           CandidateProfile           No
+/constituency             ConstituencyExplorer       No
+/constituency/:id         ConstituencyDetail         No
+/results                  ElectionResults            No
+/results/:phase           PhaseResults               No
+/news                     NewsHub                    No
+/grievance                GrievancePortal            Google OAuth
+/grievance/track          GrievanceTracking          Google OAuth
+/chatbot                  AIAssistant                No (rate-limited)
+/turnout                  TurnoutDashboard           No
+/admin                    AdminDashboard             Admin role only
+/profile                  VoterProfile               Google OAuth
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. FEATURES — DETAILED SPECIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+──────────────────────────────────────────────────────────────────────────────
+FEATURE 1: EXISTING — Hero + Voter Registration Search
+──────────────────────────────────────────────────────────────────────────────
+Description  : Full-page hero with election stats, voter registration lookup
+               by EPIC number or personal details
+
+UI Elements  :
+  - 4px tricolor top bar (saffron / white / green)
+  - 48px dark sticky nav with Devanagari script logo
+  - Inline notification band (IBM Blue left-border)
+  - Hero: 7/5 grid split, dark background, saffron stat numbers in IBM Plex Mono
+  - Quick Actions: 4-column tile bar (registration, booth finder, results, candidates)
+  - Voter Services: 3-column flat tile grid with colored pill tags
+  - Registration Search: Tab-switched form (EPIC / personal details) on dark bg
+
+Backend API  :
+  POST /api/voter/search-epic    { epic: string, state: string }
+  POST /api/voter/search-details { name, age, gender, state }
+
+DB Tables    : voters, electoral_rolls, constituencies
+
+──────────────────────────────────────────────────────────────────────────────
+FEATURE 2: AI-POWERED Q&A CHATBOT
+──────────────────────────────────────────────────────────────────────────────
+Description  : Floating AI assistant powered by Gemini 1.5 Flash with RAG
+               over election law, voter rights, and ECI guidelines documents.
+               Answers questions in English and Hindi.
+
+UI Elements  :
+  - Floating chat bubble (bottom-right, IBM Blue, 56px circle)
+  - Slide-up chat panel (400px wide, Carbon dark theme)
+  - Message bubbles: user (saffron bg), AI (layer-02 bg)
+  - Suggested prompt chips: "How do I register?", "When is polling day?", etc.
+  - Language toggle: English / हिन्दी
+  - Source citations shown as small pills below AI responses
+  - Typing indicator (3 animated dots)
+  - Clear conversation button
+  - Rate limit: 20 messages/hour for unauthenticated, unlimited for logged-in
+
+Tech Details :
+  - Python FastAPI endpoint: POST /ai/chat
+  - Gemini 1.5 Flash for response generation
+  - RAG pipeline: election law PDFs → chunked → Gemini embeddings → pgvector
+  - System prompt includes: ECI guidelines, Model Code of Conduct, voter rights
+  - Streaming response via Server-Sent Events (SSE)
+  - Conversation history stored in Redis (TTL: 1 hour)
+
+Backend API  :
+  POST /api/ai/chat            { message, history[], language }
+  GET  /api/ai/suggestions     Returns contextual prompt suggestions
+
+DB Tables    : chat_sessions, document_embeddings (pgvector)
+
+──────────────────────────────────────────────────────────────────────────────
+FEATURE 3: CANDIDATE PROFILE CARDS WITH SOCIAL LINKS
+──────────────────────────────────────────────────────────────────────────────
+Description  : Searchable directory of all candidates with rich profile cards
+               showing affidavit data, assets, criminal records, social links,
+               and vote share history.
+
+UI Elements  :
+  - Search bar + filter bar (State → Constituency → Party → Phase)
+  - Carbon data table view + card grid view toggle
+  - Candidate card:
+      * Photo (from Supabase Storage)
+      * Name, party, constituency
+      * Party color accent strip (left border)
+      * Assets declared (IBM Plex Mono number)
+      * Criminal cases badge (red if > 0)
+      * Education qualification pill
+      * Social links row: Twitter/X, Facebook, Instagram, official website
+      * "View Full Affidavit" link → PDF in Supabase Storage
+  - Candidate detail page:
+      * Full asset breakdown table
+      * Vote history chart (Recharts bar chart)
+      * Gemini AI summary: "Key policy positions based on public statements"
+
+Backend API  :
+  GET  /api/candidates?state=&constituency=&party=&phase=&page=&q=
+  GET  /api/candidates/:id
+  POST /api/candidates/:id/ai-summary    (Gemini-generated profile summary)
+
+DB Tables    : candidates, candidate_assets, candidate_social, parties,
+               vote_history
+
+──────────────────────────────────────────────────────────────────────────────
+FEATURE 4: COMPLAINT / GRIEVANCE PORTAL
+──────────────────────────────────────────────────────────────────────────────
+Description  : Digital version of cVIGIL — file, track, and escalate
+               complaints about electoral malpractice, voter intimidation,
+               bribery, and MCC violations.
+
+UI Elements  :
+  - Grievance form (Google OAuth required):
+      * Complaint category (MCC Violation / Voter Intimidation / Booth Capture
+        / Bribery / Fake News / Other)
+      * Description textarea (min 50 chars)
+      * Location picker (state → district → constituency)
+      * Evidence upload (photo/video, max 50MB, to Supabase Storage)
+      * Anonymous filing option (checkbox)
+  - Submission confirmation with 12-char ticket ID (IBM Plex Mono)
+  - Track Status page:
+      * Enter ticket ID → see current status
+      * Status timeline: Filed → Under Review → Investigated → Resolved
+      * ECI officer comments (if any)
+  - Admin view: grievance queue with priority scoring (AI-assigned)
+
+AI Integration :
+  - Gemini classifies complaint severity (High/Medium/Low) on submission
+  - Auto-generates summary for ECI officer review
+  - Duplicate detection: embeddings similarity check against last 30 days
+
+Backend API  :
+  POST /api/grievance/submit
+  GET  /api/grievance/track/:ticketId
+  GET  /api/grievance/list           (admin only)
+  PATCH /api/grievance/:id/status    (admin only)
+
+DB Tables    : grievances, grievance_evidence, grievance_timeline
+
+──────────────────────────────────────────────────────────────────────────────
+FEATURE 5: VOTER TURNOUT PREDICTIONS
+──────────────────────────────────────────────────────────────────────────────
+Description  : Real-time dashboard showing live turnout numbers during
+               polling hours + Gemini-powered predictions by state/constituency
+               using historical data and demographic signals.
+
+UI Elements  :
+  - Live Turnout Tracker section:
+      * Phase progress bar (saffron fill on dark bg)
+      * India-level aggregate turnout % (giant IBM Plex Mono number)
+      * State-wise turnout table (sortable Carbon data table)
+      * Last updated timestamp (auto-refreshes every 60s via Socket.IO)
+  - Prediction Dashboard:
+      * Recharts area chart: actual vs predicted turnout per hour
+      * State-wise prediction cards (color-coded: green >65%, yellow 50-65%, red <50%)
+      * Demographic breakdown: urban vs rural, male vs female
+      * "Factors affecting turnout" — Gemini-generated insight card
+  - Historical Comparison:
+      * Bar chart: 2014 / 2019 / 2024 / 2026 turnout by phase
+
+Tech Details :
+  - Python FastAPI: ML prediction model (sklearn/xgboost trained on historical data)
+  - Gemini 1.5 Pro: narrative insights from prediction data
+  - Supabase Realtime: live turnout numbers pushed by ECI data pipeline
+  - Socket.IO: push updates to connected clients (no polling)
+  - BullMQ job: scrapes ECI turnout API every 5 minutes during polling hours
+
+Backend API  :
+  GET  /api/turnout/live             Returns live turnout by state
+  GET  /api/turnout/predictions/:state
+  GET  /api/turnout/historical
+  WS   /socket/turnout-updates       Socket.IO channel
+
+DB Tables    : turnout_snapshots, turnout_predictions, historical_turnout
+
+──────────────────────────────────────────────────────────────────────────────
+FEATURE 6: CONSTITUENCY MAP EXPLORER
+──────────────────────────────────────────────────────────────────────────────
+Description  : Interactive choropleth map of India showing all 543 Lok Sabha
+               constituencies with drill-down to Assembly segments, candidate
+               pins, and demographic overlays.
+
+UI Elements  :
+  - Full-width map (Leaflet.js, dark Carbon tile layer)
+  - Sidebar panel:
+      * State selector dropdown
+      * Constituency search autocomplete
+      * Overlay selector: Turnout % / Winning Margin / Demographics / Phase
+  - Map interactivity:
+      * Hover tooltip: constituency name, sitting MP, party color
+      * Click → constituency detail panel slides in from right
+      * Constituency detail: candidates list, 2024 result, demographics
+      * Phase color overlay: phase 1 (blue) → phase 5 (saffron gradient)
+  - Polling booth locator:
+      * Enter address → show nearest 5 booths as map pins
+      * Distance and accessibility rating per booth
+
+Tech Details :
+  - GeoJSON: India constituency boundaries (ECI open data)
+  - Leaflet.js with custom Carbon-themed tiles
+  - React-Leaflet wrapper for React integration
+  - Supabase PostGIS: geospatial queries for booth proximity search
+
+Backend API  :
+  GET  /api/map/constituencies       GeoJSON for all constituencies
+  GET  /api/map/constituency/:id     Detailed data for one constituency
+  POST /api/map/nearest-booth        { lat, lng } → 5 nearest booths
+
+DB Tables    : constituencies_geo (PostGIS), polling_booths, mp_profiles
+
+──────────────────────────────────────────────────────────────────────────────
+FEATURE 7: REAL-TIME ELECTION NEWS FEED
+──────────────────────────────────────────────────────────────────────────────
+Description  : Live feed of election-related news articles aggregated from
+               trusted sources (PIB, ECI press releases, major newspapers)
+               with Gemini-powered fact-check flags and category tagging.
+
+UI Elements  :
+  - Infinite-scroll news feed (Carbon tile layout)
+  - News card:
+      * Source logo + name + timestamp
+      * Headline (IBM Plex Sans 600)
+      * 2-line summary (Gemini-generated)
+      * Category pill: ECI Official / MCC / Results / Candidate / Opinion
+      * Fact-check badge: Verified / Unverified / Disputed (color coded)
+      * Share button
+  - Filter bar: All / Phase 1–5 / State-specific / ECI Official only
+  - Breaking News banner (saffron left-border notification) for ECI press releases
+  - Search: semantic search over headlines + summaries
+
+Tech Details :
+  - BullMQ job: runs every 15 minutes, fetches RSS feeds from 12 sources
+  - Gemini Flash: generates 2-line summary per article on ingest
+  - Gemini: classifies category + preliminary fact-check signal
+  - Socket.IO: pushes breaking news to connected clients instantly
+  - Supabase Realtime: subscribers get new articles without page refresh
+
+Backend API  :
+  GET  /api/news?category=&state=&page=&q=
+  GET  /api/news/:id
+  WS   /socket/breaking-news         Socket.IO channel
+
+DB Tables    : news_articles, news_sources, news_categories
+
+──────────────────────────────────────────────────────────────────────────────
+FEATURE 8: EXISTING — Election Process Education
+──────────────────────────────────────────────────────────────────────────────
+Description  : Tabbed section explaining the election process with interactive
+               timeline, how-to-vote guide, voter rights, and phase schedule.
+
+UI Elements  :
+  - Tabs: Election Timeline / How to Vote / Your Rights / 2026 Schedule
+  - Timeline: 5-step grid (done=green, active=blue, upcoming=gray)
+  - Phase Schedule: Carbon data table with status badges
+  - How to Vote: 3-tile step guide
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. DATABASE SCHEMA (SUPABASE / POSTGRESQL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TABLE: voters
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  epic_number     VARCHAR(10) UNIQUE NOT NULL
+  full_name       VARCHAR(200) NOT NULL
+  dob             DATE NOT NULL
+  gender          VARCHAR(20)
+  address         TEXT
+  state           VARCHAR(100)
+  constituency_id UUID REFERENCES constituencies(id)
+  booth_id        UUID REFERENCES polling_booths(id)
+  is_active       BOOLEAN DEFAULT true
+  created_at      TIMESTAMPTZ DEFAULT now()
+
+TABLE: candidates
+  id              UUID PRIMARY KEY
+  name            VARCHAR(200)
+  party_id        UUID REFERENCES parties(id)
+  constituency_id UUID REFERENCES constituencies(id)
+  phase           INTEGER
+  photo_url       TEXT  -- Supabase Storage URL
+  assets_declared BIGINT  -- in INR
+  criminal_cases  INTEGER DEFAULT 0
+  education       VARCHAR(200)
+  affidavit_url   TEXT  -- Supabase Storage PDF URL
+  ai_summary      TEXT  -- Gemini generated
+  created_at      TIMESTAMPTZ DEFAULT now()
+
+TABLE: candidate_social
+  id              UUID PRIMARY KEY
+  candidate_id    UUID REFERENCES candidates(id)
+  platform        VARCHAR(50)  -- twitter, facebook, instagram, website
+  url             TEXT
+  handle          VARCHAR(200)
+
+TABLE: parties
+  id              UUID PRIMARY KEY
+  name            VARCHAR(200)
+  abbreviation    VARCHAR(20)
+  logo_url        TEXT
+  color_hex       VARCHAR(7)  -- for UI accent strip
+
+TABLE: constituencies
+  id              UUID PRIMARY KEY
+  name            VARCHAR(200)
+  state           VARCHAR(100)
+  type            VARCHAR(20)  -- lok_sabha | assembly
+  phase           INTEGER
+  geojson         JSONB  -- constituency boundary
+
+TABLE: polling_booths
+  id              UUID PRIMARY KEY
+  constituency_id UUID REFERENCES constituencies(id)
+  name            VARCHAR(300)
+  address         TEXT
+  lat             DECIMAL(10,7)
+  lng             DECIMAL(10,7)
+  is_accessible   BOOLEAN DEFAULT true
+  location        GEOGRAPHY(POINT, 4326)  -- PostGIS
+
+TABLE: grievances
+  id              UUID PRIMARY KEY
+  ticket_id       VARCHAR(12) UNIQUE  -- public-facing ID
+  user_id         UUID REFERENCES auth.users(id)
+  category        VARCHAR(100)
+  description     TEXT
+  constituency_id UUID
+  is_anonymous    BOOLEAN DEFAULT false
+  ai_severity     VARCHAR(20)  -- High / Medium / Low (Gemini assigned)
+  ai_summary      TEXT
+  status          VARCHAR(50) DEFAULT 'filed'
+  created_at      TIMESTAMPTZ DEFAULT now()
+
+TABLE: grievance_evidence
+  id              UUID PRIMARY KEY
+  grievance_id    UUID REFERENCES grievances(id)
+  file_url        TEXT  -- Supabase Storage
+  file_type       VARCHAR(50)
+  uploaded_at     TIMESTAMPTZ DEFAULT now()
+
+TABLE: grievance_timeline
+  id              UUID PRIMARY KEY
+  grievance_id    UUID REFERENCES grievances(id)
+  status          VARCHAR(50)
+  note            TEXT
+  officer_id      UUID
+  timestamp       TIMESTAMPTZ DEFAULT now()
+
+TABLE: turnout_snapshots
+  id              UUID PRIMARY KEY
+  constituency_id UUID
+  state           VARCHAR(100)
+  phase           INTEGER
+  recorded_at     TIMESTAMPTZ
+  turnout_pct     DECIMAL(5,2)
+  total_votes     INTEGER
+
+TABLE: news_articles
+  id              UUID PRIMARY KEY
+  source_id       UUID REFERENCES news_sources(id)
+  headline        TEXT NOT NULL
+  summary         TEXT  -- Gemini generated
+  url             TEXT UNIQUE
+  category        VARCHAR(100)
+  fact_check      VARCHAR(50)  -- verified | unverified | disputed
+  published_at    TIMESTAMPTZ
+  state_tag       VARCHAR(100)
+  phase_tag       INTEGER
+  embedding       vector(768)  -- pgvector for semantic search
+
+TABLE: document_embeddings  (RAG store for AI chatbot)
+  id              UUID PRIMARY KEY
+  source_doc      VARCHAR(200)
+  chunk_text      TEXT
+  embedding       vector(768)
+  created_at      TIMESTAMPTZ DEFAULT now()
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. API ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+7.1 NODE.JS EXPRESS API (Primary Backend)
+  Base URL: https://api.eci-portal.gov.in/v1
+
+  Auth Endpoints
+    POST   /auth/google          OAuth callback, issue JWT + refresh token
+    POST   /auth/refresh         Refresh access token
+    POST   /auth/logout          Revoke refresh token
+
+  Voter Endpoints
+    POST   /voter/search-epic
+    POST   /voter/search-details
+    GET    /voter/profile         (auth required)
+    PUT    /voter/profile         (auth required)
+
+  Candidate Endpoints
+    GET    /candidates
+    GET    /candidates/:id
+    GET    /candidates/:id/vote-history
+
+  Constituency & Map Endpoints
+    GET    /map/constituencies
+    GET    /map/constituency/:id
+    POST   /map/nearest-booth
+
+  Grievance Endpoints
+    POST   /grievance/submit      (auth required)
+    GET    /grievance/track/:id
+    GET    /grievance/list        (admin)
+    PATCH  /grievance/:id/status  (admin)
+
+  News Endpoints
+    GET    /news
+    GET    /news/:id
+    GET    /news/search?q=
+
+  Turnout Endpoints
+    GET    /turnout/live
+    GET    /turnout/predictions/:state
+    GET    /turnout/historical
+
+7.2 PYTHON FASTAPI (AI Microservice)
+  Base URL: https://ai.eci-portal.gov.in/v1
+
+  POST   /ai/chat               Gemini chatbot with RAG (SSE streaming)
+  POST   /ai/suggestions        Contextual prompt chips
+  POST   /ai/candidate-summary  Generate candidate AI summary
+  POST   /ai/grievance-classify Severity + duplicate check
+  POST   /ai/news-summarize     Summarize + categorize article
+  GET    /ai/turnout-insight/:state  Narrative insight from prediction data
+
+7.3 WEBSOCKET (Socket.IO namespaces)
+  /turnout-updates    Live turnout numbers pushed every 60s during polling
+  /breaking-news      ECI press releases pushed immediately on ingest
+  /election-results   Phase result announcements on counting day
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. AUTHENTICATION FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. User clicks "Sign in with Google" → Google OAuth 2.0 flow
+2. Google callback → Supabase Auth handles session
+3. Supabase issues JWT (15 min TTL) + refresh token (30 days)
+4. Frontend stores JWT in memory, refresh token in httpOnly cookie
+5. Every API request: Authorization: Bearer <jwt>
+6. On 401: auto-refresh using cookie-based refresh token
+7. Roles assigned in Supabase user_metadata: voter | admin | journalist
+
+Features requiring auth: Grievance filing, Voter profile, Admin dashboard
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. ENVIRONMENT VARIABLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Supabase
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=
+
+# Gemini AI
+GEMINI_API_KEY=
+GEMINI_MODEL_FLASH=gemini-1.5-flash
+GEMINI_MODEL_PRO=gemini-1.5-pro
+GEMINI_EMBEDDING_MODEL=text-embedding-004
+
+# Redis (for BullMQ + caching)
+REDIS_URL=
+
+# App
+PORT=3000
+NODE_ENV=production
+JWT_SECRET=
+CORS_ORIGIN=https://eci-portal.gov.in
+
+# Python FastAPI
+PYTHON_AI_SERVICE_URL=
+FASTAPI_SECRET_KEY=
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. PROJECT FOLDER STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+eci-portal/
+├── frontend/                    # React + TypeScript (Vite)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── layout/          # Nav, Footer, TricolorBar
+│   │   │   ├── chatbot/         # AI chatbot floating panel
+│   │   │   ├── candidates/      # CandidateCard, CandidateFilter
+│   │   │   ├── map/             # ConstituencyMap, BoothLocator
+│   │   │   ├── news/            # NewsCard, NewsFeed, BreakingBanner
+│   │   │   ├── turnout/         # LiveTracker, PredictionChart
+│   │   │   ├── grievance/       # GrievanceForm, TrackGrievance
+│   │   │   └── ui/              # Carbon-styled base components
+│   │   ├── pages/               # Route-level page components
+│   │   ├── store/               # Zustand stores
+│   │   ├── hooks/               # Custom React hooks
+│   │   ├── services/            # Axios API clients
+│   │   ├── types/               # TypeScript interfaces
+│   │   └── styles/              # Global CSS variables, Carbon tokens
+│   ├── public/
+│   │   └── geojson/             # India constituency GeoJSON
+│   └── vite.config.ts
+│
+├── backend/                     # Node.js + Express + TypeScript
+│   ├── src/
+│   │   ├── routes/              # Express route files
+│   │   ├── controllers/         # Business logic
+│   │   ├── middleware/          # Auth, rate-limit, error handlers
+│   │   ├── services/            # DB queries, external API calls
+│   │   ├── jobs/                # BullMQ job definitions
+│   │   ├── socket/              # Socket.IO event handlers
+│   │   └── prisma/              # Prisma schema + migrations
+│   ├── tsconfig.json
+│   └── package.json
+│
+├── ai-service/                  # Python FastAPI
+│   ├── app/
+│   │   ├── routers/             # FastAPI route modules
+│   │   ├── services/            # Gemini client, RAG pipeline
+│   │   ├── models/              # Pydantic request/response models
+│   │   └── utils/               # Embedding utils, chunking
+│   ├── requirements.txt
+│   └── Dockerfile
+│
+├── docker-compose.yml           # Local dev: all services + Redis + Postgres
+├── .github/workflows/           # CI/CD pipelines
+└── README.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. DEVELOPMENT PHASES / MILESTONES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Phase 1 — Foundation (Weeks 1–3)
+  ✓ Project scaffold: Vite + React + TS, Express + TS, FastAPI
+  ✓ Supabase setup: tables, auth, storage buckets
+  ✓ Google OAuth integration
+  ✓ Core IBM Carbon design system tokens in React
+  ✓ Nav, Footer, TricolorBar components
+  ✓ Hero section + Voter Registration Search (EPIC + details form)
+  ✓ Voter Services tiles
+  ✓ Election Process Education tabs (existing feature ported to React)
+
+Phase 2 — AI Chatbot + Candidates (Weeks 4–6)
+  ✓ Gemini API integration in FastAPI
+  ✓ RAG pipeline: document ingestion, embeddings, pgvector
+  ✓ Chatbot floating panel UI + SSE streaming
+  ✓ Candidate database seeding (ECI 2024 data)
+  ✓ Candidate directory: search, filter, sort
+  ✓ Candidate profile pages with affidavit viewer
+  ✓ Social links + Gemini AI summary generation
+
+Phase 3 — Map + Grievance (Weeks 7–9)
+  ✓ Constituency GeoJSON integration
+  ✓ Leaflet map with Carbon dark tiles
+  ✓ Choropleth overlays (turnout, margin, phase)
+  ✓ Booth locator with PostGIS proximity query
+  ✓ Grievance form with file upload to Supabase Storage
+  ✓ Gemini severity classification on submission
+  ✓ Grievance tracking by ticket ID
+  ✓ Admin dashboard skeleton
+
+Phase 4 — News + Turnout (Weeks 10–12)
+  ✓ BullMQ news ingestion pipeline
+  ✓ Gemini news summarization + categorization
+  ✓ News feed UI with infinite scroll
+  ✓ Socket.IO breaking news push
+  ✓ Turnout tracker with Supabase Realtime
+  ✓ Python ML prediction model (xgboost)
+  ✓ Prediction dashboard with Recharts
+  ✓ Gemini narrative insight generation
+
+Phase 5 — Polish + Launch (Weeks 13–14)
+  ✓ Mobile responsive pass
+  ✓ Accessibility audit (WCAG 2.1 AA)
+  ✓ Performance optimization (lazy loading, code splitting)
+  ✓ Sentry + Posthog integration
+  ✓ Load testing (100k concurrent users target)
+  ✓ Security audit: OWASP Top 10
+  ✓ Staging deploy + UAT
+  ✓ Production deploy (Vercel + Railway)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12. NON-FUNCTIONAL REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Performance    : < 2s First Contentful Paint, < 3s LCP on 4G mobile
+Availability   : 99.9% uptime SLA during election phases
+Scalability    : Horizontal scaling via Railway (auto-scale on CPU/memory)
+Security       : HTTPS everywhere, CSP headers, rate limiting (100 req/min
+                 unauthenticated, 1000 req/min authenticated)
+Accessibility  : WCAG 2.1 AA compliance, keyboard navigation, screen-reader support
+Languages      : English + Hindi (i18n via react-i18next)
+Browser Support: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+Data Privacy   : No voter personal data logged in application logs;
+                 Supabase RLS policies enforce user-level data isolation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+13. KEY DEPENDENCIES & PACKAGE LIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FRONTEND (npm)
+  react@18, react-dom@18, react-router-dom@6
+  typescript@5, vite@5
+  @supabase/supabase-js@2
+  @tanstack/react-query@5
+  axios, zustand
+  react-hook-form, zod
+  leaflet, react-leaflet
+  recharts
+  socket.io-client
+  react-i18next, i18next
+  @carbon/react (optional — Carbon component library)
+
+BACKEND (npm)
+  express, typescript, ts-node, tsx
+  @supabase/supabase-js
+  @prisma/client, prisma
+  jsonwebtoken, bcryptjs
+  socket.io
+  bullmq, ioredis
+  axios, cors, helmet, morgan
+  zod (validation)
+  multer (file uploads)
+
+PYTHON (pip)
+  fastapi, uvicorn
+  google-generativeai
+  supabase
+  numpy, pandas
+  scikit-learn, xgboost
+  pgvector
+  httpx, pydantic
+  python-jose (JWT)
+  feedparser (RSS)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+END OF PRD
+================================================================================
+Document: ECI_Election_Portal_PRD.txt
+Created: April 28, 2026
+Built for excellence — as specified.
+================================================================================

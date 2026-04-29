@@ -1,0 +1,94 @@
+.register-container {
+  min-height: 100vh;
+  padding: 8rem 2rem 4rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 900px;
+  padding: 4rem;
+  background: var(--cds-layer-01);
+  border: 1px solid var(--cds-layer-03);
+}
+
+
+.register-header {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.register-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.register-header p {
+  color: var(--cds-text-secondary);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.register-form .form-input {
+  height: 64px;
+  font-size: 1.1rem;
+}
+
+.phone-input-group {
+  display: flex;
+  gap: 0.5rem;
+  height: 64px;
+}
+
+
+.status-banner {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+}
+
+.status-banner.success {
+  background: rgba(25, 128, 56, 0.1);
+  border: 1px solid var(--eci-green);
+  color: var(--eci-green);
+}
+
+.status-banner.error {
+  background: rgba(218, 30, 40, 0.1);
+  border: 1px solid #da1e28;
+  color: #ff8389;
+}
+
+.success-view {
+  width: 100%;
+  text-align: center;
+}
+
+.success-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--eci-green);
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .register-card {
+    padding: 2rem 1.5rem;
+  }
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+}
