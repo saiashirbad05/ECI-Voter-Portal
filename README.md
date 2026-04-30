@@ -2,7 +2,7 @@
 
 > Your Vote. Your Democracy. Powered by Intelligence.
 
-**Live URL:** [https://election-portal-qp53ag6pmq-uc.a.run.app/](https://election-portal-qp53ag6pmq-uc.a.run.app/)
+**Live URL:** [https://election-portal-609619705519.us-central1.run.app/]
 
 ---
 
@@ -30,7 +30,7 @@ The platform is engineered to handle data at the scale of **1.2 Billion voters**
 
 Visit the live deployment — no login required for browsing candidates, turnout data, maps, and news.
 
-[https://election-portal-qp53ag6pmq-uc.a.run.app/](https://election-portal-qp53ag6pmq-uc.a.run.app/)
+https://election-portal-609619705519.us-central1.run.app/
 
 ---
 
